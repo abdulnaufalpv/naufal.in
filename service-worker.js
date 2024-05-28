@@ -1,13 +1,36 @@
-self.addEventListener('install', (event) => {
-  console.log('Service Worker installing.');
-  // Add caching logic here if needed
-});
+// Service worker code goes here
 
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating.');
+// This is a basic service worker that caches resources for offline use
+
+const CACHE_NAME = 'naufal-cache-v1';
+const urlsToCache = [
+  '/',
+  'index.html',
+  'styles.css',
+  'scripts.js',
+  // Add more URLs to cache as needed
+];
+
+self.addEventListener('install', (event) => {
+  // Perform install steps
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Cache opened');
+        return cache.addAll(urlsToCache);
+      })
+  );
 });
 
 self.addEventListener('fetch', (event) => {
-  console.log('Fetching:', event.request.url);
-  // Handle fetch events if needed
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Cache hit - return response
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
+  );
 });
